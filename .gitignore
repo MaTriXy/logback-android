@@ -1,5 +1,5 @@
+.DS_Store
 .settings
-target
 .classpath
 .project
 .idea
@@ -7,6 +7,24 @@ target
 *.iml
 *.ipr
 *.iws
-logback-classic/jdbc:hsqldb:mem:test.log
-logback-classic/jdbc:hsqldb:mem:test.properties
-logback-classic/jdbc:hsqldb:mem:test.script
+local.properties
+**/test/resources
+
+# Ignore `mvn versions` output
+*.versionsBackup
+
+.gradle
+build/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Cache of project
+.gradletasknamecache
+
+# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
+# gradle/wrapper/gradle-wrapper.properties
+
