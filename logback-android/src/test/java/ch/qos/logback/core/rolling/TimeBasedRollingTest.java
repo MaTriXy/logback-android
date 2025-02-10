@@ -1,15 +1,17 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.core.rolling;
 
@@ -17,8 +19,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import ch.qos.logback.core.encoder.EchoEncoder;
@@ -48,35 +48,25 @@ import ch.qos.logback.core.util.StatusPrinter;
  */
 public class TimeBasedRollingTest extends ScaffoldingForRollingTests {
 
-  static final int NO_RESTART = 0;
-  static final int WITH_RESTART = 1;
-  static final int WITH_RESTART_AND_LONG_WAIT = 2000;
+  private static final int NO_RESTART = 0;
+  private static final int WITH_RESTART = 1;
+  private static final int WITH_RESTART_AND_LONG_WAIT = 2000;
 
-  static final boolean FILE_OPTION_SET = true;
-  static final boolean FILE_OPTION_BLANK = false;
+  private static final boolean FILE_OPTION_SET = true;
+  private static final boolean FILE_OPTION_BLANK = false;
 
 
-  RollingFileAppender<Object> rfa1 = new RollingFileAppender<Object>();
-  TimeBasedRollingPolicy<Object> tbrp1 = new TimeBasedRollingPolicy<Object>();
+  private RollingFileAppender<Object> rfa1 = new RollingFileAppender<Object>();
+  private TimeBasedRollingPolicy<Object> tbrp1 = new TimeBasedRollingPolicy<Object>();
 
-  RollingFileAppender<Object> rfa2 = new RollingFileAppender<Object>();
-  TimeBasedRollingPolicy<Object> tbrp2 = new TimeBasedRollingPolicy<Object>();
+  private RollingFileAppender<Object> rfa2 = new RollingFileAppender<Object>();
+  private TimeBasedRollingPolicy<Object> tbrp2 = new TimeBasedRollingPolicy<Object>();
 
-  EchoEncoder<Object> encoder = new EchoEncoder<Object>();
+  private EchoEncoder<Object> encoder = new EchoEncoder<Object>();
 
-  RolloverChecker rolloverChecker;
+  private RolloverChecker rolloverChecker;
 
-  @Before
-  @Override
-  public void setUp() {
-    super.setUp();
-  }
-
-  @After
-  public void tearDown() {
-  }
-
-  void initRFA(RollingFileAppender<Object> rfa, String filename) {
+  private void initRFA(RollingFileAppender<Object> rfa, String filename) {
     rfa.setContext(context);
     rfa.setEncoder(encoder);
     if (filename != null) {
@@ -84,7 +74,7 @@ public class TimeBasedRollingTest extends ScaffoldingForRollingTests {
     }
   }
 
-  void initTRBP(RollingFileAppender<Object> rfa,
+  private void initTRBP(RollingFileAppender<Object> rfa,
                 TimeBasedRollingPolicy<Object> tbrp, String filenamePattern,
                 long givenTime) {
     tbrp.setContext(context);
@@ -97,12 +87,11 @@ public class TimeBasedRollingTest extends ScaffoldingForRollingTests {
     rfa.start();
   }
 
-
-  void genericTest(String testId, String patternPrefix, String compressionSuffix, boolean fileOptionIsSet, int waitDuration) throws IOException {
+  private void genericTest(String testId, String patternPrefix, String compressionSuffix, boolean fileOptionIsSet, int waitDuration) throws IOException {
     String fileName = fileOptionIsSet ? testId2FileName(testId) : null;
     initRFA(rfa1, fileName);
 
-    String fileNamePatternStr = randomOutputDir + patternPrefix + "-%d{" + DATE_PATTERN_WITH_SECONDS + "}" + compressionSuffix;
+    String fileNamePatternStr = randomOutputDir + patternPrefix + "-%d{" + DATE_PATTERN_WITH_SECONDS + ", GMT}" + compressionSuffix;
 
     initTRBP(rfa1, tbrp1, fileNamePatternStr, currentTime);
 
@@ -133,20 +122,20 @@ public class TimeBasedRollingTest extends ScaffoldingForRollingTests {
     rolloverChecker.check(expectedFilenameList);
   }
 
-  void defaultTest(String testId, String patternPrefix, String compressionSuffix, boolean fileOptionIsSet, int waitDuration) throws IOException {
+  private void defaultTest(String testId, String patternPrefix, String compressionSuffix, boolean fileOptionIsSet, int waitDuration) throws IOException {
     boolean withCompression = compressionSuffix.length() > 0;
     rolloverChecker = new DefaultRolloverChecker(testId, withCompression, compressionSuffix);
     genericTest(testId, patternPrefix, compressionSuffix, fileOptionIsSet, waitDuration);
   }
 
-  void doRestart(String testId, String patternPart, boolean fileOptionIsSet, int waitDuration) {
+  private void doRestart(String testId, String patternPart, boolean fileOptionIsSet, int waitDuration) {
     // change the timestamp of the currently actively file
     File activeFile = new File(rfa1.getFile());
     activeFile.setLastModified(currentTime);
 
     incCurrentTime(waitDuration);
 
-    String filePatternStr = randomOutputDir + patternPart + "-%d{" + DATE_PATTERN_WITH_SECONDS + "}";
+    String filePatternStr = randomOutputDir + patternPart + "-%d{" + DATE_PATTERN_WITH_SECONDS + ", GMT}";
 
     String fileName = fileOptionIsSet ? testId2FileName(testId) : null;
     initRFA(rfa2, fileName);
@@ -154,7 +143,7 @@ public class TimeBasedRollingTest extends ScaffoldingForRollingTests {
     for (int i = 0; i < 3; i++) {
       rfa2.doAppend("World---" + i);
       addExpectedFileNamedIfItsTime_ByDate(filePatternStr);
-      incCurrentTime(100);
+      incCurrentTime(400);
       tbrp2.timeBasedFileNamingAndTriggeringPolicy.setCurrentTime(currentTime);
       add(tbrp2.compressionFuture);
       add(tbrp2.cleanUpFuture);

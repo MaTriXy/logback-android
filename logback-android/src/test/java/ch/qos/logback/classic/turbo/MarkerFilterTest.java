@@ -1,15 +1,17 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.classic.turbo;
 
@@ -22,6 +24,8 @@ import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
 import ch.qos.logback.core.spi.FilterReply;
+
+import java.util.Collections;
 
 public class MarkerFilterTest {
 
@@ -36,7 +40,7 @@ public class MarkerFilterTest {
     MarkerFilter mkt = new MarkerFilter();
     mkt.start();
     assertFalse(mkt.isStarted());
-    assertEquals(FilterReply.NEUTRAL, mkt.decide(totoMarker, null, null, null, null, null));
+    assertEquals(FilterReply.NEUTRAL, mkt.decide(Collections.singletonList(totoMarker), null, null, null, null, null));
     assertEquals(FilterReply.NEUTRAL, mkt.decide(null, null, null, null, null, null));
 
   }
@@ -52,7 +56,7 @@ public class MarkerFilterTest {
     mkt.start();
     assertTrue(mkt.isStarted());
     assertEquals(FilterReply.DENY, mkt.decide(null, null, null, null, null, null));
-    assertEquals(FilterReply.ACCEPT, mkt.decide(totoMarker, null, null, null, null, null));
+    assertEquals(FilterReply.ACCEPT, mkt.decide(Collections.singletonList(totoMarker), null, null, null, null, null));
   }
 
   @Test
@@ -70,8 +74,8 @@ public class MarkerFilterTest {
 
     assertTrue(mkt.isStarted());
     assertEquals(FilterReply.DENY, mkt.decide(null, null, null, null, null, null));
-    assertEquals(FilterReply.ACCEPT, mkt.decide(totoMarker, null, null, null, null, null));
-    assertEquals(FilterReply.ACCEPT, mkt.decide(compositeMarker, null, null, null, null, null));
+    assertEquals(FilterReply.ACCEPT, mkt.decide(Collections.singletonList(totoMarker), null, null, null, null, null));
+    assertEquals(FilterReply.ACCEPT, mkt.decide(Collections.singletonList(compositeMarker), null, null, null, null, null));
   }
 
 }

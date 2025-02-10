@@ -1,15 +1,17 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.core.util;
 
@@ -34,13 +36,6 @@ public class OptionHelper {
           DynamicClassLoadingException {
     ClassLoader classLoader = Loader.getClassLoaderOfObject(context);
     return instantiateByClassName(className, superClass, classLoader);
-  }
-
-  public static Object instantiateByClassNameAndParameter(String className,
-                                                          Class<?> superClass, Context context, Class<?> type, Object param) throws IncompatibleClassException,
-          DynamicClassLoadingException {
-    ClassLoader classLoader = Loader.getClassLoaderOfObject(context);
-    return instantiateByClassNameAndParameter(className, superClass, classLoader, type, param);
   }
 
   public static Object instantiateByClassName(String className,
@@ -76,31 +71,8 @@ public class OptionHelper {
     }
   }
 
-  /**
-   * Find the value corresponding to <code>key</code> in <code>props</code>.
-   * Then perform variable substitution on the found value.
-   */
-  // public static String findAndSubst(String key, Properties props) {
-  // String value = props.getProperty(key);
-  //
-  // if (value == null) {
-  // return null;
-  // }
-  //
-  // try {
-  // return substVars(value, props);
-  // } catch (IllegalArgumentException e) {
-  // return value;
-  // }
-  // }
-  final static String DELIM_START = "${";
-  final static char DELIM_STOP = '}';
   final static String DELIM_DEFAULT = ":-";
-
-  final static int DELIM_START_LEN = 2;
-  final static int DELIM_STOP_LEN = 1;
   final static int DELIM_DEFAULT_LEN = 2;
-
   final static String _IS_UNDEFINED = "_IS_UNDEFINED";
 
   /**
@@ -126,26 +98,6 @@ public class OptionHelper {
     } catch (ScanException e) {
       throw new IllegalArgumentException("Failed to parse input [" + input + "]", e);
     }
-  }
-
-  public static String propertyLookup(String key, PropertyContainer pc1,
-                                      PropertyContainer pc2) {
-    String value = null;
-    // first try the props passed as parameter
-    value = pc1.getProperty(key);
-
-    // then try  the pc2
-    if (value == null && pc2 != null) {
-      value = pc2.getProperty(key);
-    }
-    // then try in System properties
-    if (value == null) {
-      value = getSystemProperty(key, null);
-    }
-    if (value == null) {
-      value = getEnv(key);
-    }
-    return value;
   }
 
   /**

@@ -1,15 +1,17 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.core.rolling.helper;
 
@@ -22,44 +24,12 @@ import java.util.regex.Pattern;
 
 public class FileFilterUtil {
 
-  public static void sortFileArrayByName(File[] fileArray) {
-    Arrays.sort(fileArray, new Comparator<File>() {
-      public int compare(File o1, File o2) {
-        String o1Name = o1.getName();
-        String o2Name = o2.getName();
-        return (o1Name.compareTo(o2Name));
-      }
-    });
-  }
-
-  public static void reverseSortFileArrayByName(File[] fileArray) {
-    Arrays.sort(fileArray, new Comparator<File>() {
-      public int compare(File o1, File o2) {
-        String o1Name = o1.getName();
-        String o2Name = o2.getName();
-        return (o2Name.compareTo(o1Name));
-      }
-    });
-  }
-
   public static String afterLastSlash(String sregex) {
     int i = sregex.lastIndexOf('/');
     if (i == -1) {
       return sregex;
     } else {
       return sregex.substring(i + 1);
-    }
-  }
-
-  static public boolean isEmptyDirectory(File dir) {
-    if (!dir.isDirectory()) {
-      throw new IllegalArgumentException("[" + dir + "] must be a directory");
-    }
-    String[] filesInDir = dir.list();
-    if (filesInDir == null || filesInDir.length == 0) {
-      return true;
-    } else {
-      return false;
     }
   }
 
@@ -112,18 +82,5 @@ public class FileFilterUtil {
 
   public static String slashify(String in) {
     return in.replace('\\', '/');
-  }
-
-  public static void removeEmptyParentDirectories(File file,
-      int recursivityCount) {
-    // we should never go more than 3 levels higher
-    if (recursivityCount >= 3) {
-      return;
-    }
-    File parent = file.getParentFile();
-    if (parent.isDirectory() && FileFilterUtil.isEmptyDirectory(parent)) {
-      parent.delete();
-      removeEmptyParentDirectories(parent, recursivityCount + 1);
-    }
   }
 }

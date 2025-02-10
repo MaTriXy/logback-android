@@ -1,15 +1,17 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.core.rolling;
 
@@ -20,11 +22,10 @@ import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.joran.spi.NoAutoStart;
 import ch.qos.logback.core.rolling.helper.ArchiveRemover;
 import ch.qos.logback.core.rolling.helper.CompressionMode;
+import ch.qos.logback.core.rolling.helper.DefaultFileProvider;
 import ch.qos.logback.core.rolling.helper.FileFilterUtil;
 import ch.qos.logback.core.rolling.helper.SizeAndTimeBasedArchiveRemover;
-import ch.qos.logback.core.util.DefaultInvocationGate;
 import ch.qos.logback.core.util.FileSize;
-import ch.qos.logback.core.util.InvocationGate;
 
 import static ch.qos.logback.core.CoreConstants.MANUAL_URL_PREFIX;
 
@@ -108,7 +109,7 @@ public class SizeAndTimeBasedFNATP<E> extends
   }
 
   protected ArchiveRemover createArchiveRemover() {
-    return new SizeAndTimeBasedArchiveRemover(tbrp.fileNamePattern, rc);
+    return new SizeAndTimeBasedArchiveRemover(tbrp.fileNamePattern, rc, new DefaultFileProvider());
   }
 
   void computeCurrentPeriodsHighestCounterValue(final String stemRegex) {
@@ -132,8 +133,6 @@ public class SizeAndTimeBasedFNATP<E> extends
     }
   }
 
-  InvocationGate invocationGate = new DefaultInvocationGate();
-
   @Override
   public boolean isTriggeringEvent(File activeFile, final E event) {
 
@@ -146,11 +145,6 @@ public class SizeAndTimeBasedFNATP<E> extends
       setDateInCurrentPeriod(time);
       computeNextCheck();
       return true;
-    }
-
-    // next check for roll-over based on size
-    if (invocationGate.isTooSoon(time)) {
-      return false;
     }
 
     if (activeFile == null) {

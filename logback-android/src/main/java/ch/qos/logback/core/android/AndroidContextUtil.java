@@ -1,15 +1,17 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.core.android;
 
@@ -23,9 +25,8 @@ import android.os.Environment;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Properties;
 
-import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.Context;
 import ch.qos.logback.core.CoreConstants;
 
 /**
@@ -46,26 +47,31 @@ public class AndroidContextUtil {
     this.context = contextWrapper;
   }
 
+  public static boolean containsProperties(String value) {
+    return value.contains(CoreConstants.DATA_DIR_KEY)
+            || value.contains(CoreConstants.EXT_DIR_KEY)
+            || value.contains(CoreConstants.PACKAGE_NAME_KEY)
+            || value.contains(CoreConstants.VERSION_CODE_KEY)
+            || value.contains(CoreConstants.VERSION_NAME_KEY);
+  }
+
   /**
    * Sets properties for use in configs
    * @param context logger context whose property map is updated
    */
-  public void setupProperties(LoggerContext context) {
+  public void setupProperties(Context context) {
     // legacy properties
-    Properties props = new Properties();
-    props.setProperty(CoreConstants.DATA_DIR_KEY, getFilesDirectoryPath());
+    context.putProperty(CoreConstants.DATA_DIR_KEY, getFilesDirectoryPath());
     final String extDir = getMountedExternalStorageDirectoryPath();
     if (extDir != null) {
-      props.setProperty(CoreConstants.EXT_DIR_KEY, extDir);
+      context.putProperty(CoreConstants.EXT_DIR_KEY, extDir);
     }
-    props.setProperty(CoreConstants.PACKAGE_NAME_KEY, getPackageName());
-    props.setProperty(CoreConstants.VERSION_CODE_KEY, getVersionCode());
-    props.setProperty(CoreConstants.VERSION_NAME_KEY, getVersionName());
-
-    context.putProperties(props);
+    context.putProperty(CoreConstants.PACKAGE_NAME_KEY, getPackageName());
+    context.putProperty(CoreConstants.VERSION_CODE_KEY, getVersionCode());
+    context.putProperty(CoreConstants.VERSION_NAME_KEY, getVersionName());
   }
 
-  private static ContextWrapper getContext() {
+  protected static ContextWrapper getContext() {
     try {
       Class<?> c = Class.forName("android.app.AppGlobals");
       Method method = c.getDeclaredMethod("getInitialApplication");
@@ -92,9 +98,9 @@ public class AndroidContextUtil {
   public String getMountedExternalStorageDirectoryPath() {
     String path = null;
     String state = Environment.getExternalStorageState();
-    if (state.equals(Environment.MEDIA_MOUNTED) ||
-        state.equals(Environment.MEDIA_MOUNTED_READ_ONLY)) {
-      path = absPath(Environment.getExternalStorageDirectory());
+    if (Environment.MEDIA_MOUNTED.equals(state) ||
+        Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+      path = getExternalStorageDirectoryPath();
     }
     return path;
   }
@@ -102,12 +108,33 @@ public class AndroidContextUtil {
   /**
    * Gets the path to the external storage directory
    *
+   * This API is available on SDK 8+. On API versions 29 onwards,
+   * this function uses the implementation in
+   * {@link android.content.Context#getExternalFilesDir(java.lang.String)}
+   * which is the proposed replacement for
+   * {@link android.os.Environment#getExternalStorageDirectory()}.
+   *
    * @return the absolute path to the external storage directory
    */
+  @TargetApi(8)
+  @SuppressWarnings("deprecation")
   public String getExternalStorageDirectoryPath() {
-    return Environment.getExternalStorageDirectory().getAbsolutePath();
+    if (Build.VERSION.SDK_INT >= 29) {
+      return getExternalFilesDirectoryPath();
+    } else {
+      return absPath(Environment.getExternalStorageDirectory());
+    }
   }
 
+  /**
+   * Gets the path to the external storage directory
+   *
+   * This API is available on SDK 8+. This function uses the implementation in
+   * {@link android.content.Context#getExternalFilesDir(java.lang.String)}.
+   *
+   * @return the absolute path to the external storage directory
+   */
+  @TargetApi(8)
   public String getExternalFilesDirectoryPath() {
     return this.context != null
             ? absPath(this.context.getExternalFilesDir(null))
@@ -151,7 +178,7 @@ public class AndroidContextUtil {
    * Returns the absolute path to the directory on the Android
    * filesystem similar to {@link #getFilesDirectoryPath()}.
    * The difference is these files are excluded from automatic
-   * backup to remote storage by {@link android.app.backup.BackupAgent}.
+   * backup to remote storage by {@code android.app.backup.BackupAgent}.
    * This API is only available on SDK 21+. On older versions,
    * this function returns an empty string.
    *

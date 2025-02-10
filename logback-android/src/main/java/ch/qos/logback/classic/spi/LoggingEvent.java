@@ -1,21 +1,24 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.classic.spi;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.MDC;
@@ -86,7 +89,7 @@ public class LoggingEvent implements ILoggingEvent {
 
   private StackTraceElement[] callerDataArray;
 
-  private Marker marker;
+  private List<Marker> markers;
 
   private Map<String, String> mdcPropertyMap;
 
@@ -269,16 +272,16 @@ public class LoggingEvent implements ILoggingEvent {
     this.callerDataArray = callerDataArray;
   }
 
-  public Marker getMarker() {
-    return marker;
+  public List<Marker> getMarkers() {
+    return markers;
   }
 
-  public void setMarker(Marker marker) {
-    if (this.marker != null) {
+  public void setMarkers(List<Marker> markers) {
+    if (this.markers != null) {
       throw new IllegalStateException(
               "The marker has been already set for this event.");
     }
-    this.marker = marker;
+    this.markers = markers;
   }
 
   public long getContextBirthTime() {

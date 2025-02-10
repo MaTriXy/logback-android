@@ -1,54 +1,129 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2015, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.core.rolling.helper;
 
+import static ch.qos.logback.core.rolling.helper.RollingCalendar.GMT_TIMEZONE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.util.EnvUtil;
 
 public class RollingCalendarTest {
 
-  String dailyPattern = "yyyy-MM-dd";
+  @Test
+  public void roundsDateWithMissingMonthDayUnits() throws ParseException {
+    final Date REF_DATE = parseDate("yyyy-MM-dd HH:mm:ss.SSS", "2000-12-25 09:30:49.876");
+    Calendar cal = getEndOfNextNthPeriod("yyyy-SSS", REF_DATE, -1);
 
-  @Before
-  public void setUp() {
+    assertEquals(2000, cal.get(Calendar.YEAR));
+    assertEquals(Calendar.JANUARY, cal.get(Calendar.MONTH));
+    assertEquals(1, cal.get(Calendar.DAY_OF_MONTH));
+    assertEquals(0, cal.get(Calendar.HOUR_OF_DAY));
+    assertEquals(0, cal.get(Calendar.MINUTE));
+    assertEquals(0, cal.get(Calendar.SECOND));
+    assertEquals(875, cal.get(Calendar.MILLISECOND));
+  }
 
-    // Most surprisingly, in certain environments (e.g. Windows 7), setting the default locale
-    // allows certain tests to pass which otherwise fail.
-    //
-    // These tests are:
-    //
-    //  checkCollisionFreeness("yyyy-WW", false);
-    //  checkCollisionFreeness("yyyy-ww", true);
-    //  checkCollisionFreeness("ww", false);
-    //  {
-    //    RollingCalendar rc = new RollingCalendar("yyyy-ww");
-    //    assertEquals(PeriodicityType.TOP_OF_WEEK, rc.getPeriodicityType());
-    //  }
-    //
+  @Test
+  public void roundsDateWithOnlyDayInYear() throws ParseException {
+    final Date REF_DATE = parseDate("yyyy-MM-dd HH:mm:ss.SSS", "2000-12-25 09:30:49.876");
+    Calendar cal = getEndOfNextNthPeriod("yyyy-DD", REF_DATE, -1);
 
-    Locale oldLocale = Locale.getDefault();
-    Locale.setDefault(oldLocale);
+    assertEquals(2000, cal.get(Calendar.YEAR));
+    assertEquals(Calendar.DECEMBER, cal.get(Calendar.MONTH));
+    assertEquals(24, cal.get(Calendar.DAY_OF_MONTH));
+    assertEquals(359, cal.get(Calendar.DAY_OF_YEAR));
+    assertEquals(0, cal.get(Calendar.HOUR_OF_DAY));
+    assertEquals(0, cal.get(Calendar.MINUTE));
+    assertEquals(0, cal.get(Calendar.SECOND));
+    assertEquals(0, cal.get(Calendar.MILLISECOND));
+  }
+
+  @Test
+  public void roundsDateWithMissingMonthUnits() throws ParseException {
+    final Date REF_DATE = parseDate("yyyy-MM-dd HH:mm:ss.SSS", "2000-12-25 09:30:49.876");
+    Calendar cal = getEndOfNextNthPeriod("yyyy-dd", REF_DATE, -1);
+
+    assertEquals(2000, cal.get(Calendar.YEAR));
+    assertEquals(Calendar.JANUARY, cal.get(Calendar.MONTH));
+    assertEquals(24, cal.get(Calendar.DAY_OF_MONTH));
+    assertEquals(0, cal.get(Calendar.HOUR_OF_DAY));
+    assertEquals(0, cal.get(Calendar.MINUTE));
+    assertEquals(0, cal.get(Calendar.SECOND));
+    assertEquals(0, cal.get(Calendar.MILLISECOND));
+  }
+
+  @Test
+  public void roundsDateWithMissingTimeUnits() throws ParseException {
+    final Date REF_DATE = parseDate("yyyy-MM-dd HH:mm:ss.SSS", "2000-12-25 09:30:49.876");
+    Calendar cal = getEndOfNextNthPeriod("yyyy-MM-dd-ss", REF_DATE, -1);
+
+    assertEquals(2000, cal.get(Calendar.YEAR));
+    assertEquals(Calendar.DECEMBER, cal.get(Calendar.MONTH));
+    assertEquals(25, cal.get(Calendar.DAY_OF_MONTH));
+    assertEquals(0, cal.get(Calendar.HOUR_OF_DAY));
+    assertEquals(0, cal.get(Calendar.MINUTE));
+    assertEquals(48, cal.get(Calendar.SECOND));
+    assertEquals(0, cal.get(Calendar.MILLISECOND));
+  }
+
+  private Calendar getEndOfNextNthPeriod(String dateFormat, Date date, int n) {
+    RollingCalendar rc = new RollingCalendar(dateFormat, GMT_TIMEZONE, Locale.US);
+    Date nextDate = rc.getEndOfNextNthPeriod(date, n);
+    Calendar cal = Calendar.getInstance(GMT_TIMEZONE, Locale.US);
+    cal.setTime(nextDate);
+    return cal;
+  }
+
+  private Date parseDate(String dateFormat, String dateString) throws ParseException {
+    SimpleDateFormat dateFormatter = new SimpleDateFormat(dateFormat, Locale.US);
+    dateFormatter.setTimeZone(GMT_TIMEZONE);
+    return dateFormatter.parse(dateString);
+  }
+
+  @Test
+  public void testMillisecondPeriodicity() {
+    // The length of the 'S' pattern letter matters on different platforms,
+    // and can render different results on different versions of Android.
+    // This test verifies that the periodicity is correct for different
+    // pattern lengths.
+
+    {
+      RollingCalendar rc = new RollingCalendar("yyyy-MM-dd-S");
+      assertEquals(PeriodicityType.TOP_OF_MILLISECOND, rc.getPeriodicityType());
+    }
+
+    {
+      RollingCalendar rc = new RollingCalendar("yyyy-MM-dd-SS");
+      assertEquals(PeriodicityType.TOP_OF_MILLISECOND, rc.getPeriodicityType());
+    }
+
+    {
+      RollingCalendar rc = new RollingCalendar("yyyy-MM-dd-SSS");
+      assertEquals(PeriodicityType.TOP_OF_MILLISECOND, rc.getPeriodicityType());
+    }
   }
 
   @Test
@@ -125,22 +200,6 @@ public class RollingCalendarTest {
     }
   }
 
-  // Wed Mar 23 23:07:05 CET 2016
-  final long WED_2016_03_23_T_230705_CET = 1458770825333L;
-
-  @Test
-  public void testBarrierCrossingComputation() {
-    checkPeriodBarriersCrossed("yyyy-MM-dd'T'HHmmss", WED_2016_03_23_T_230705_CET, WED_2016_03_23_T_230705_CET + 3 * CoreConstants.MILLIS_IN_ONE_SECOND, 3);
-    checkPeriodBarriersCrossed("yyyy-MM-dd'T'HHmm", WED_2016_03_23_T_230705_CET, WED_2016_03_23_T_230705_CET + 3 * CoreConstants.MILLIS_IN_ONE_MINUTE, 3);
-    checkPeriodBarriersCrossed("yyyy-MM-dd'T'HH", WED_2016_03_23_T_230705_CET, WED_2016_03_23_T_230705_CET + 3 * CoreConstants.MILLIS_IN_ONE_HOUR, 3);
-    checkPeriodBarriersCrossed("yyyy-MM-dd", WED_2016_03_23_T_230705_CET, WED_2016_03_23_T_230705_CET + 3 * CoreConstants.MILLIS_IN_ONE_DAY, 3);
-  }
-
-  private void checkPeriodBarriersCrossed(String pattern, long start, long end, int count) {
-    RollingCalendar rc = new RollingCalendar(pattern);
-    assertEquals(count, rc.periodBarriersCrossed(start, end));
-  }
-
   @Test
   public void testCollisionFreeness() {
     // hourly
@@ -182,46 +241,5 @@ public class RollingCalendarTest {
     } else {
       assertFalse(rc.isCollisionFree());
     }
-  }
-
-  @Test
-  public void basicPeriodBarriersCrossed() {
-    RollingCalendar rc = new RollingCalendar(dailyPattern, TimeZone.getTimeZone("CET"), Locale.US);
-    // Thu Jan 26 19:46:58 CET 2017, GMT offset = -1h
-    long start = 1485456418969L;
-    // Fri Jan 27 19:46:58 CET 2017,  GMT offset = -1h
-    long end = start + CoreConstants.MILLIS_IN_ONE_DAY;
-    assertEquals(1, rc.periodBarriersCrossed(start, end));
-  }
-
-  @Test
-  public void testPeriodBarriersCrossedWhenGoingIntoDaylightSaving() {
-    RollingCalendar rc = new RollingCalendar(dailyPattern, TimeZone.getTimeZone("CET"), Locale.US);
-    // Sun Mar 26 00:02:03 CET  2017, GMT offset = -1h
-    long start = 1490482923333L;
-    // Mon Mar 27 00:02:03 CEST 2017,  GMT offset = -2h
-    long end = 1490565723333L;
-
-    assertEquals(1, rc.periodBarriersCrossed(start, end));
-  }
-
-  @Test
-  public void testPeriodBarriersCrossedWhenLeavingDaylightSaving() {
-    RollingCalendar rc = new RollingCalendar(dailyPattern, TimeZone.getTimeZone("CET"), Locale.US);
-    // Sun Oct 29 00:02:03 CEST 2017, GMT offset = -2h
-    long start = 1509228123333L;//1490482923333L+217*CoreConstants.MILLIS_IN_ONE_DAY-CoreConstants.MILLIS_IN_ONE_HOUR;
-    // Mon Oct 30 00:02:03 CET  2017,  GMT offset = -1h
-    long end = 1509228123333L + 25 * CoreConstants.MILLIS_IN_ONE_HOUR;
-    assertEquals(1, rc.periodBarriersCrossed(start, end));
-  }
-
-  @Test
-  public void testPeriodBarriersCrossedJustBeforeEnteringDaylightSaving() {
-    RollingCalendar rc = new RollingCalendar(dailyPattern, TimeZone.getTimeZone("CET"), Locale.US);
-    // Sun Mar 26 22:18:38 CEST 2017, GMT offset = +2h
-    long start = 1490559518333L;
-    // Mon Mar 27 00:05:18 CEST 2017, GMT offset = +2h
-    long end = 1490565918333L;
-    assertEquals(1, rc.periodBarriersCrossed(start, end));
   }
 }

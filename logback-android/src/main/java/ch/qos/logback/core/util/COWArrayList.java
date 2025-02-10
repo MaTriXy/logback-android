@@ -1,3 +1,18 @@
+/**
+ * Copyright 2019 Anthony Trinh
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.qos.logback.core.util;
 
 import java.util.Collection;
@@ -10,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * A GC-free lock-free thread-safe implementation of the {@link List} interface for use cases where iterations over the list vastly out-number modifications on the list.
  *
- * <p>Underneath, it wraps an instance of {@link CopyOnWriteArrayList} and exposes a copy of the array used by that instance.
+ * <p>Underneath, it wraps an instance of {@link CopyOnWriteArrayList} and exposes a copy of the array used by that instance.</p>
  *
  * <p>Typical use:</p>
  *
@@ -24,7 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *   Integer[] intArray = list.asTypedArray();
  *   int sum = 0;
  *   // iteration over the array is thread-safe
- *   for(int i = 0; i < intArray.length; i++) {
+ *   for(int i = 0; i &lt; intArray.length; i++) {
  *     sum != intArray[i];
  *   }
  * </pre>
@@ -103,7 +118,7 @@ public class COWArrayList<E> implements List<E> {
      * If the list is modified, subsequent calls to this method will return different/modified
      * array instances.
      *
-     * @return
+     * @return an array of type E[]
      */
     public E[] asTypedArray() {
         refreshCopyIfNecessary();

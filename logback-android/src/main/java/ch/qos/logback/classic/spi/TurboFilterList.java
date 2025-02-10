@@ -1,18 +1,21 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.classic.spi;
 
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Marker;
@@ -36,7 +39,7 @@ final public class TurboFilterList extends CopyOnWriteArrayList<TurboFilter> {
    * ACCEPT or DENY, then that value is returned. If all of the filters return
    * NEUTRAL, then NEUTRAL is returned.
    */
-  public FilterReply getTurboFilterChainDecision(final Marker marker,
+  public FilterReply getTurboFilterChainDecision(final List<Marker> markers,
       final Logger logger, final Level level, final String format,
       final Object[] params, final Throwable t) {
     
@@ -48,7 +51,7 @@ final public class TurboFilterList extends CopyOnWriteArrayList<TurboFilter> {
     if (size == 1) {
       try {
         TurboFilter tf = get(0);
-        return tf.decide(marker, logger, level, format, params, t);
+        return tf.decide(markers, logger, level, format, params, t);
       } catch (IndexOutOfBoundsException iobe) {
         return FilterReply.NEUTRAL;
       }
@@ -59,7 +62,7 @@ final public class TurboFilterList extends CopyOnWriteArrayList<TurboFilter> {
     for (int i = 0; i < len; i++) {
     //for (TurboFilter tf : this) {
       final TurboFilter tf = (TurboFilter) tfa[i];
-      final FilterReply r = tf.decide(marker, logger, level, format, params, t);
+      final FilterReply r = tf.decide(markers, logger, level, format, params, t);
       if (r == FilterReply.DENY || r == FilterReply.ACCEPT) {
         return r;
       }

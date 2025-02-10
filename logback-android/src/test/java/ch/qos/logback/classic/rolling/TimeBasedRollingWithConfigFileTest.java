@@ -1,18 +1,21 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.classic.rolling;
 
+import java.text.ParseException;
 import java.util.Date;
 
 import org.junit.After;
@@ -42,16 +45,16 @@ import static org.junit.Assert.assertTrue;
 public class TimeBasedRollingWithConfigFileTest extends
         ScaffoldingForRollingTests {
 
-  LoggerContext lc = new LoggerContext();
-  StatusChecker statusChecker = new StatusChecker(lc);
-  Logger logger = lc.getLogger(this.getClass());
-  int fileSize = 0;
-  int fileIndexCounter = -1;
-  int sizeThreshold;
+  private LoggerContext lc = new LoggerContext();
+  private StatusChecker statusChecker = new StatusChecker(lc);
+  private Logger logger = lc.getLogger(this.getClass());
+  private int fileSize = 0;
+  private int fileIndexCounter = -1;
+  private int sizeThreshold;
 
   @Before
   @Override
-  public void setUp() {
+  public void setUp() throws ParseException {
     lc.setName("test");
     super.setUp();
     lc.putProperty("randomOutputDir", randomOutputDir);
@@ -61,10 +64,10 @@ public class TimeBasedRollingWithConfigFileTest extends
   public void tearDown() throws Exception {
   }
 
-  void loadConfig(String confifFile) throws JoranException {
+  private void loadConfig(String configFile) throws JoranException {
     JoranConfigurator jc = new JoranConfigurator();
     jc.setContext(lc);
-    jc.doConfigure(confifFile);
+    jc.doConfigure(configFile);
     currentTime = System.currentTimeMillis();
     recomputeRolloverThreshold(currentTime);
   }

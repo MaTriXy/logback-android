@@ -1,15 +1,17 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.core;
 
@@ -40,10 +42,10 @@ public class ContextBase implements Context, LifeCycle {
   // TODO propertyMap should be observable so that we can be notified
   // when it changes so that a new instance of propertyMap can be
   // serialized. For the time being, we ignore this shortcoming.
-  Map<String, String> propertyMap = new HashMap<String, String>();
-  Map<String, Object> objectMap = new HashMap<String, Object>();
+  private Map<String, String> propertyMap = new HashMap<String, String>();
+  private Map<String, Object> objectMap = new HashMap<String, Object>();
 
-  LogbackLock configurationLock = new LogbackLock();
+  private LogbackLock configurationLock = new LogbackLock();
 
   private ScheduledExecutorService scheduledExecutorService;
   protected List<ScheduledFuture<?>> scheduledFutures = new ArrayList<ScheduledFuture<?>>(1);

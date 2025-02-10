@@ -1,15 +1,17 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.classic.boolex;
 
@@ -19,6 +21,8 @@ import static junit.framework.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.MarkerFactory;
+
+import java.util.Collections;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
@@ -43,7 +47,7 @@ public class OnMarkerEvaluatorTest {
     evaluator.addMarker("M");
     evaluator.start();
    
-    event.setMarker(MarkerFactory.getMarker("M"));
+    event.setMarkers(Collections.singletonList(MarkerFactory.getMarker("M")));
     assertTrue(evaluator.evaluate(event));
   }
   

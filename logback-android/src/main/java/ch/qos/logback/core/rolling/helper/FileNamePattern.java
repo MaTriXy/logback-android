@@ -1,15 +1,17 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.core.rolling.helper;
 
@@ -177,7 +179,7 @@ public class FileNamePattern extends ContextAwareBase {
   public void setPattern(String pattern) {
     if (pattern != null) {
       // Trailing spaces in the pattern are assumed to be undesired.
-      this.pattern = pattern.trim();
+      this.pattern = pattern.trim().replace("//", "/");
     }
   }
 
@@ -200,9 +202,14 @@ public class FileNamePattern extends ContextAwareBase {
       if (p instanceof LiteralConverter) {
         buf.append(p.convert(null));
       } else if (p instanceof IntegerTokenConverter) {
-        buf.append("(\\d+)");
+        buf.append(FileFinder.regexEscapePath("(\\d+)"));
       } else if (p instanceof DateTokenConverter) {
-        buf.append(p.convert(date));
+        DateTokenConverter<Object> dtc = (DateTokenConverter<Object>) p;
+        if (dtc.isPrimary()) {
+          buf.append(p.convert(date));
+        } else {
+          buf.append(FileFinder.regexEscapePath(dtc.toRegex()));
+        }
       }
       p = p.getNext();
     }
@@ -213,16 +220,29 @@ public class FileNamePattern extends ContextAwareBase {
    * Given date, convert this instance to a regular expression
    */
   public String toRegex() {
+    return toRegex(false, false);
+  }
+
+  public String toRegex(boolean capturePrimaryDate, boolean captureInteger) {
     StringBuilder buf = new StringBuilder();
     Converter<Object> p = headTokenConverter;
     while (p != null) {
       if (p instanceof LiteralConverter) {
         buf.append(p.convert(null));
       } else if (p instanceof IntegerTokenConverter) {
-        buf.append("\\d+");
+        if (captureInteger) {
+          buf.append(FileFinder.regexEscapePath("(\\d+)"));
+        } else {
+          buf.append(FileFinder.regexEscapePath("\\d+"));
+        }
       } else if (p instanceof DateTokenConverter) {
         DateTokenConverter<Object> dtc = (DateTokenConverter<Object>) p;
-        buf.append(dtc.toRegex());
+        if (capturePrimaryDate && dtc.isPrimary()) {
+          buf.append(FileFinder.regexEscapePath("(" + dtc.toRegex() + ")"));
+        } else {
+          buf.append(FileFinder.regexEscapePath(dtc.toRegex()));
+        }
+
       }
       p = p.getNext();
     }

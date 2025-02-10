@@ -1,19 +1,23 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.classic.turbo;
 
 import org.slf4j.Marker;
+
+import java.util.List;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -42,7 +46,7 @@ public abstract class TurboFilter extends ContextAwareBase implements LifeCycle 
    * The returned value should be one of <code>{@link FilterReply#DENY}</code>,
    * <code>{@link FilterReply#NEUTRAL}</code>, or <code>{@link FilterReply#ACCEPT}</code>.
 
-   * @param marker
+   * @param markers
    * @param logger
    * @param level
    * @param format
@@ -50,8 +54,8 @@ public abstract class TurboFilter extends ContextAwareBase implements LifeCycle 
    * @param t
    * @return decision
    */
-  public abstract FilterReply decide(Marker marker, Logger logger,
-      Level level, String format, Object[] params, Throwable t);
+  public abstract FilterReply decide(List<Marker> markers, Logger logger,
+                                     Level level, String format, Object[] params, Throwable t);
 
   public void start() {
     this.start = true;

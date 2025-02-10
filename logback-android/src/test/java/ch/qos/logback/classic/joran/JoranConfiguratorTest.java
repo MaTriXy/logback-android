@@ -1,15 +1,17 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.classic.joran;
 
@@ -17,7 +19,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import ch.qos.logback.classic.jul.JULHelper;
 import ch.qos.logback.core.pattern.parser.Parser;
 import ch.qos.logback.core.spi.ScanException;
 import ch.qos.logback.core.status.Status;
@@ -322,51 +323,6 @@ public class JoranConfiguratorTest {
 
     StatusChecker checker = new StatusChecker(loggerContext);
     checker.assertIsErrorFree();
-  }
-
-  @SuppressWarnings("deprecation")
-  void verifyJULLevel(String loggerName, Level expectedLevel) {
-    java.util.logging.Logger julLogger = JULHelper.asJULLogger(loggerName);
-    java.util.logging.Level julLevel = julLogger.getLevel();
-
-    if (expectedLevel == null) {
-      assertNull(julLevel);
-    } else {
-      assertEquals(JULHelper.asJULLevel(expectedLevel), julLevel);
-    }
-
-
-  }
-
-  @Test
-  public void levelChangePropagator0() throws JoranException, IOException,
-          InterruptedException {
-    String loggerName = "changePropagator0" + diff;
-    java.util.logging.Logger.getLogger(loggerName).setLevel(java.util.logging.Level.INFO);
-    String configFileAsStr = ClassicTestConstants.JORAN_INPUT_PREFIX
-            + "/jul/levelChangePropagator0.xml";
-    configure(configFileAsStr);
-    StatusChecker checker = new StatusChecker(loggerContext);
-    checker.assertIsErrorFree();
-    verifyJULLevel(loggerName, null);
-    verifyJULLevel("a.b.c." + diff, Level.WARN);
-    verifyJULLevel(Logger.ROOT_LOGGER_NAME, Level.TRACE);
-  }
-
-  @Test
-  public void levelChangePropagator1() throws JoranException, IOException,
-          InterruptedException {
-    String loggerName = "changePropagator1" + diff;
-    java.util.logging.Logger.getLogger(loggerName).setLevel(java.util.logging.Level.INFO);
-    verifyJULLevel(loggerName, Level.INFO);
-    String configFileAsStr = ClassicTestConstants.JORAN_INPUT_PREFIX
-            + "/jul/levelChangePropagator1.xml";
-    configure(configFileAsStr);
-    StatusChecker checker = new StatusChecker(loggerContext);
-    checker.assertIsErrorFree();
-    verifyJULLevel(loggerName, Level.INFO);
-    verifyJULLevel("a.b.c." + diff, Level.WARN);
-    verifyJULLevel(Logger.ROOT_LOGGER_NAME, Level.TRACE);
   }
 
   @Test

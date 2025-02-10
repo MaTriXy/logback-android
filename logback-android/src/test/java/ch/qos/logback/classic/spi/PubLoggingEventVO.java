@@ -1,15 +1,17 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.classic.spi;
 
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Marker;
@@ -49,7 +52,7 @@ public class PubLoggingEventVO implements ILoggingEvent, Serializable {
 
   public IThrowableProxy throwableProxy;
   public StackTraceElement[] callerDataArray;
-  public Marker marker;
+  public List<Marker> markers;
   public Map<String, String> mdcPropertyMap;
   public long timeStamp;
 
@@ -104,8 +107,9 @@ public class PubLoggingEventVO implements ILoggingEvent, Serializable {
     return callerDataArray != null;
   }
 
-  public Marker getMarker() {
-    return marker;
+  @Override
+  public List<Marker> getMarkers() {
+    return markers;
   }
 
   public long getTimeStamp() {
@@ -208,10 +212,10 @@ public class PubLoggingEventVO implements ILoggingEvent, Serializable {
     if (timeStamp != other.timeStamp)
       return false;
 
-    if (marker == null) {
-      if (other.marker != null)
+    if (markers == null) {
+      if (other.markers != null)
         return false;
-    } else if (!marker.equals(other.marker))
+    } else if (!markers.equals(other.markers))
       return false;
 
     if (mdcPropertyMap == null) {

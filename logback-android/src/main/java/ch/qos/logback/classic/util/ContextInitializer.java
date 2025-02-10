@@ -1,15 +1,17 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.classic.util;
 
@@ -19,7 +21,6 @@ import java.net.URL;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.android.AndroidContextUtil;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.status.InfoStatus;
 import ch.qos.logback.core.status.StatusManager;
@@ -94,7 +95,7 @@ public class ContextInitializer {
 
   /**
    * Uses the given classloader to search for a resource
-   * @return the URL to the resource; or {@code null} if not found
+   * @return the URL of the resource; or {@code null} if not found
    */
   private URL getResource(String filename, ClassLoader myClassLoader, boolean updateStatus) {
     URL url = myClassLoader.getResource(filename);
@@ -120,8 +121,6 @@ public class ContextInitializer {
   public void autoConfig() throws JoranException {
     StatusListenerConfigHelper.installIfAsked(loggerContext);
 
-    new AndroidContextUtil().setupProperties(loggerContext);
-
     boolean verbose = true;
     boolean configured = false;
 
@@ -139,9 +138,9 @@ public class ContextInitializer {
 
     // search assets
     if (!configured) {
-      URL assetsConfigUrl = findConfigFileURLFromAssets(verbose);
-      if (assetsConfigUrl != null) {
-        configurator.doConfigure(assetsConfigUrl);
+      URL assetsConfigXml = findConfigFileURLFromAssets(verbose);
+      if (assetsConfigXml != null) {
+        configurator.doConfigure(assetsConfigXml);
         configured = true;
       }
     }

@@ -1,21 +1,22 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.core.util;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -81,9 +82,6 @@ public class Compare {
             + "] differ on line " + lineCounter);
         System.out.println("One reads:  [" + s1 + "].");
         System.out.println("Other reads:[" + s2 + "].");
-        outputFile(file1);
-        outputFile(file2);
-
         return false;
       }
     }
@@ -92,48 +90,10 @@ public class Compare {
     if (in2.read() != -1) {
       System.out.println("File [" + file2 + "] longer than file [" + file1
           + "].");
-      outputFile(file1);
-      outputFile(file2);
-
       return false;
     }
 
     return true;
-  }
-
-  /**
-   * 
-   * Prints file on the console.
-   * 
-   */
-  private static void outputFile(String file) throws IOException {
-    BufferedReader in1 = null;
-
-    try {
-      String s1;
-      int lineCounter = 0;
-      System.out.println("--------------------------------");
-      System.out.println("Contents of " + file + ":");
-
-      while ((s1 = in1.readLine()) != null) {
-        lineCounter++;
-        System.out.print(lineCounter);
-
-        if (lineCounter < 10) {
-          System.out.print("   : ");
-        } else if (lineCounter < 100) {
-          System.out.print("  : ");
-        } else if (lineCounter < 1000) {
-          System.out.print(" : ");
-        } else {
-          System.out.print(": ");
-        }
-
-        System.out.println(s1);
-      }
-    } finally {
-      close(in1);
-    }
   }
 
   public static boolean gzCompare(String file1, String file2) throws IOException {
@@ -159,9 +119,6 @@ public class Compare {
                   + "] differ on line " + lineCounter);
           System.out.println("One reads:  [" + s1 + "].");
           System.out.println("Other reads:[" + s2 + "].");
-          outputFile(file1);
-          outputFile(file2);
-
           return false;
         }
       }
@@ -170,9 +127,6 @@ public class Compare {
       if (in2.read() != -1) {
         System.out.println("File [" + file2 + "] longer than file [" + file1
                 + "].");
-        outputFile(file1);
-        outputFile(file2);
-
         return false;
       }
 

@@ -1,15 +1,17 @@
 /**
- * Logback: the reliable, generic, fast and flexible logging framework.
- * Copyright (C) 1999-2013, QOS.ch. All rights reserved.
+ * Copyright 2019 Anthony Trinh
  *
- * This program and the accompanying materials are dual-licensed under
- * either the terms of the Eclipse Public License v1.0 as published by
- * the Eclipse Foundation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   or (per the licensee's choosing)
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * under the terms of the GNU Lesser General Public License version 2.1
- * as published by the Free Software Foundation.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.qos.logback.core.rolling.helper;
 
@@ -154,13 +156,13 @@ public class FileNamePatternTest {
       FileNamePattern fnp = new FileNamePattern("foo-%d{yyyy.MM.dd}-%i.txt",
           context);
       String regex = fnp.toRegexForFixedDate(cal.getTime());
-      assertEquals("foo-2003.05.20-(\\d+).txt", regex);
+      assertEquals("foo-2003.05.20-" + FileFinder.regexEscapePath("(\\d+)") + ".txt", regex);
     }
     {
       FileNamePattern fnp = new FileNamePattern("\\toto\\foo-%d{yyyy\\MM\\dd}-%i.txt",
           context);
       String regex = fnp.toRegexForFixedDate(cal.getTime());
-      assertEquals("/toto/foo-2003/05/20-(\\d+).txt", regex);
+      assertEquals("/toto/foo-2003/05/20-" + FileFinder.regexEscapePath("(\\d+)") + ".txt", regex);
     }
   }
 
@@ -170,13 +172,13 @@ public class FileNamePatternTest {
       FileNamePattern fnp = new FileNamePattern("foo-%d{yyyy.MM.dd}-%i.txt",
           context);
       String regex = fnp.toRegex();
-      assertEquals("foo-\\d{4}\\.\\d{2}\\.\\d{2}-\\d+.txt", regex);
+      assertEquals("foo-" + FileFinder.regexEscapePath("\\d{4}\\.\\d{2}\\.\\d{2}") + "-" + FileFinder.regexEscapePath("\\d+") + ".txt", regex);
     }
     {
       FileNamePattern fnp = new FileNamePattern("foo-%d{yyyy.MM.dd'T'}-%i.txt",
           context);
       String regex = fnp.toRegex();
-      assertEquals("foo-\\d{4}\\.\\d{2}\\.\\d{2}T-\\d+.txt", regex);
+      assertEquals("foo-" + FileFinder.regexEscapePath("\\d{4}\\.\\d{2}\\.\\d{2}T") + "-" + FileFinder.regexEscapePath("\\d+") + ".txt", regex);
     }
   }
 
